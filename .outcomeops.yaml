@@ -1,0 +1,98 @@
+# .outcomeops.yaml - Repository configuration for OutcomeOps AI Assist
+# Terraform Serverless - Node.js Lambda booking application
+#
+# NOTE: This is a HYBRID repo using BOTH Serverless Framework AND Terraform.
+# OutcomeOps does not currently have native support for Serverless Framework.
+# Code generation may require manual adjustments to serverless.yml files.
+
+# Code generation settings
+code_generation:
+  # Backend selection - Node.js Lambda handlers
+  # Using typescript-express as closest match for JavaScript/Node.js
+  backend: "typescript-express"
+
+  # Custom guidelines for this repository
+  custom_guidelines: |
+    IMPORTANT: This repo uses BOTH Serverless Framework AND Terraform.
+    - Terraform (terraform/) creates base infrastructure (DynamoDB, SSM, SQS, IAM)
+    - Serverless Framework (serverless.yml) deploys Lambda functions
+
+    Lambda handler patterns:
+    - Use plain JavaScript (.js files), NOT TypeScript
+    - Use CommonJS require() syntax (not ES modules)
+    - Each Lambda handler is in its own directory with handler.js
+    - Follow existing handler patterns in api/, email-notification/, sms-notification/
+    - Handlers export named functions (e.g., module.exports.create, module.exports.list)
+
+    Serverless Framework patterns:
+    - Each service has its own serverless.yml (api/, bookings-consumer/, etc.)
+    - Environment variables come from SSM parameters: ${ssm:${self:custom.stage}-param-name}
+    - IAM roles are created by Terraform and referenced via SSM
+    - Use frameworkVersion: '2' (legacy, but that's what this project uses)
+
+    Terraform patterns:
+    - Base infra in terraform/infra/system/ (SSM, DynamoDB tables)
+    - Notification infra in terraform/infra/notifications/ (SQS, IAM for notifications)
+    - IAM roles for Lambdas are created here, not in serverless.yml
+
+    When adding a new Lambda:
+    1. Create handler directory with handler.js
+    2. Create serverless.yml in the directory
+    3. Add IAM role in terraform/infra/
+    4. Store IAM role ARN in SSM parameter
+    5. Reference SSM parameter in serverless.yml role config
+
+  # Additional knowledge base queries for this repo's patterns
+  additional_kb_queries:
+    - "Serverless Framework Lambda configuration"
+    - "Node.js Lambda handler patterns"
+    - "Terraform SSM parameter patterns"
+
+# Project context for plan generation
+project_context: |
+  This is a serverless booking application built with Node.js Lambda functions,
+  Serverless Framework for Lambda deployment, and Terraform for base infrastructure.
+
+  HYBRID ARCHITECTURE:
+  - Terraform: Creates DynamoDB tables, SSM parameters, IAM roles, SQS queues
+  - Serverless Framework: Deploys Lambda functions and API Gateway
+
+  Tech stack:
+  - Node.js 12.x Lambda functions (JavaScript, not TypeScript)
+  - Serverless Framework v2 for Lambda deployment
+  - Terraform for base infrastructure
+  - AWS API Gateway for REST API (managed by Serverless)
+  - AWS SQS for async messaging
+  - AWS SES/SNS for notifications
+  - DynamoDB for data storage
+  - JWT for authentication
+
+  Project structure:
+  - api/serverless.yml - API service (register, login, bookings)
+  - api/authorizer/ - API Gateway authorizer Lambda
+  - api/login/ - User login Lambda
+  - api/register/ - User registration Lambda
+  - api/create-booking/ - Create booking Lambda
+  - api/list-bookings/ - List bookings Lambda
+  - bookings-consumer/serverless.yml - SQS consumer service
+  - bookings-consumer/ - Booking event processor
+  - email-notification/serverless.yml - Email notification service
+  - sms-notification/serverless.yml - SMS notification service
+  - terraform/infra/system/ - Core infrastructure (SSM, DynamoDB)
+  - terraform/infra/notifications/ - Notification infrastructure (SQS, IAM)
+
+  Deployment:
+  1. ./deploy.sh <stage> - Runs terraform apply, then sls deploy for each service
+  2. ./destroy.sh <stage> - Tears down everything
+
+# Testing configuration
+testing:
+  framework: "jest"
+  test_directory: "tests"
+  coverage_threshold: 70
+
+# Infrastructure configuration
+# Note: HYBRID - both Terraform and Serverless Framework
+infrastructure:
+  provider: "terraform"
+  directory: "terraform"
