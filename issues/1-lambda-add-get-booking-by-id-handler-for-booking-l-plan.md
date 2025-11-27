@@ -316,9 +316,9 @@ User Story
 
 ---
 
-### Step 8: Update API service serverless.yml to include get-booking ⏳
+### Step 8: Update API service serverless.yml to include get-booking 🔄
 
-**Status:** pending
+**Status:** in_progress
 **Description:** Add get-booking function configuration to api/serverless.yml following the pattern of existing functions (create-booking, list-bookings). Include function definition, events, and environment variables.
 
 ---
