@@ -252,9 +252,9 @@ User Story
 
 ---
 
-### Step 4: Create unit tests for get-booking success cases ⏳
+### Step 4: Create unit tests for get-booking success cases 🔄
 
-**Status:** pending
+**Status:** in_progress
 **Description:** Create unit tests for happy path scenarios: (1) booking owner retrieves their booking successfully, (2) ADMIN user retrieves any booking successfully. Mock DynamoDB responses and JWT context.
 
 **Files:**
