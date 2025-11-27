@@ -11,6 +11,13 @@ code_generation:
   # Using typescript-express as closest match for JavaScript/Node.js
   backend: "typescript-express"
 
+  # Handler directories - parent directories where Lambda handlers live
+  # Each subdirectory containing handler.js becomes a code unit
+  # "./" means look for handler directories at root level (e.g., email-notification/)
+  handler_directories:
+    - "api/"  # Contains login/, register/, create-booking/, list-bookings/, authorizer/
+    - "./"   # Root-level handlers: email-notification/, sms-notification/, bookings-consumer/
+
   # Custom guidelines for this repository
   custom_guidelines: |
     IMPORTANT: This repo uses BOTH Serverless Framework AND Terraform.
