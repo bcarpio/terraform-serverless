@@ -298,9 +298,9 @@ User Story
 
 ---
 
-### Step 7: Create integration tests for get-booking endpoint ⏳
+### Step 7: Create integration tests for get-booking endpoint 🔄
 
-**Status:** pending
+**Status:** in_progress
 **Description:** Add integration tests using supertest: (1) GET /bookings/{id} with valid token returns booking, (2) GET with invalid ID returns 400, (3) GET without authorization returns 401.
 
 **Files:**
