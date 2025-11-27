@@ -270,9 +270,9 @@ User Story
 
 ---
 
-### Step 5: Create unit tests for get-booking validation errors ⏳
+### Step 5: Create unit tests for get-booking validation errors 🔄
 
-**Status:** pending
+**Status:** in_progress
 **Description:** Add unit tests for validation error cases: (1) invalid UUID format returns 400, (2) malformed booking ID returns 400 with proper error message.
 
 **Files:**
