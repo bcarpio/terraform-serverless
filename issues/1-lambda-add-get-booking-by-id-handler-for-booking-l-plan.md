@@ -298,9 +298,9 @@ User Story
 
 ---
 
-### Step 7: Create integration tests for get-booking endpoint 🔄
+### Step 7: Create integration tests for get-booking endpoint ✅
 
-**Status:** in_progress
+**Status:** completed
 **Description:** Add integration tests using supertest: (1) GET /bookings/{id} with valid token returns booking, (2) GET with invalid ID returns 400, (3) GET without authorization returns 401.
 
 **Files:**
@@ -309,6 +309,10 @@ User Story
 **KB Queries:**
 - Supertest testing API Gateway Lambda endpoints
 - Integration testing with JWT tokens in Node.js
+
+**Completed:** 2025-11-27T23:08:35.069978
+
+**Cost:** $0.384909 (44173 input tokens, 16826 output tokens)
 
 ---
 
@@ -328,6 +332,6 @@ User Story
 
 ## Total Cost
 
-**Total:** $1.249941
-**Input Tokens:** 90,077
-**Output Tokens:** 65,314
+**Total:** $1.634850
+**Input Tokens:** 134,250
+**Output Tokens:** 82,140
