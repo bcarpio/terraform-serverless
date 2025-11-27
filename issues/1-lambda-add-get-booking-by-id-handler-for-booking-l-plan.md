@@ -284,9 +284,9 @@ User Story
 
 ---
 
-### Step 6: Create unit tests for get-booking authorization errors ⏳
+### Step 6: Create unit tests for get-booking authorization errors 🔄
 
-**Status:** pending
+**Status:** in_progress
 **Description:** Add unit tests for authorization scenarios: (1) non-owner non-ADMIN user gets 403, (2) booking not found returns 404, (3) DynamoDB error returns 500.
 
 **Files:**
