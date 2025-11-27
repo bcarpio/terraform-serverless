@@ -238,13 +238,17 @@ User Story
 
 ---
 
-### Step 3: Add get-booking IAM role in Terraform 🔄
+### Step 3: Add get-booking IAM role in Terraform ✅
 
-**Status:** in_progress
+**Status:** completed
 **Description:** Create IAM role for get-booking Lambda with DynamoDB GetItem permissions on bookings table. Store role ARN in SSM parameter following existing pattern.
 
 **Files:**
 - `terraform/infra/system/iam-get-booking.tf`
+
+**Completed:** 2025-11-27T22:53:58.523577
+
+**Cost:** $0.083619 (8803 input tokens, 3814 output tokens)
 
 ---
 
@@ -312,6 +316,6 @@ User Story
 
 ## Total Cost
 
-**Total:** $0.115773
-**Input Tokens:** 10,946
-**Output Tokens:** 5,529
+**Total:** $0.199392
+**Input Tokens:** 19,749
+**Output Tokens:** 9,343
