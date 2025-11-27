@@ -327,9 +327,9 @@ User Story
 
 ---
 
-### Step 9: Update deployment scripts if needed ❌
+### Step 9: Update deployment scripts if needed 🔄
 
-**Status:** failed
+**Status:** in_progress
 **Description:** Verify deploy.sh includes the get-booking service deployment. Update if necessary to ensure Terraform applies IAM changes before Serverless Framework deployment.
 
 **Error:** Code generation truncated for step 9. Step may be too large - consider splitting into smaller steps.
