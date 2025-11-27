@@ -238,9 +238,9 @@ User Story
 
 ---
 
-### Step 3: Add get-booking IAM role in Terraform ⏳
+### Step 3: Add get-booking IAM role in Terraform 🔄
 
-**Status:** pending
+**Status:** in_progress
 **Description:** Create IAM role for get-booking Lambda with DynamoDB GetItem permissions on bookings table. Store role ARN in SSM parameter following existing pattern.
 
 **Files:**
