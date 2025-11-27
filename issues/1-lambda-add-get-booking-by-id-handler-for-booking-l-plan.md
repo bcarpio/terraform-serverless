@@ -284,13 +284,17 @@ User Story
 
 ---
 
-### Step 6: Create unit tests for get-booking authorization errors 🔄
+### Step 6: Create unit tests for get-booking authorization errors ✅
 
-**Status:** in_progress
+**Status:** completed
 **Description:** Add unit tests for authorization scenarios: (1) non-owner non-ADMIN user gets 403, (2) booking not found returns 404, (3) DynamoDB error returns 500.
 
 **Files:**
 - `api/get-booking/handler.test.js`
+
+**Completed:** 2025-11-27T23:04:42.525668
+
+**Cost:** $0.528309 (33588 input tokens, 28503 output tokens)
 
 ---
 
@@ -324,6 +328,6 @@ User Story
 
 ## Total Cost
 
-**Total:** $0.721632
-**Input Tokens:** 56,489
-**Output Tokens:** 36,811
+**Total:** $1.249941
+**Input Tokens:** 90,077
+**Output Tokens:** 65,314
