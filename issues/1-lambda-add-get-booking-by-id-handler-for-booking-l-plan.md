@@ -8,7 +8,7 @@
 
 ## Issue Description
 
-  User Story
+User Story
 
   As a user,
   I want to retrieve a specific booking by its ID,
@@ -159,265 +159,52 @@
 ### Lambda Standards
 
 - # Query: Express route handler standards and patterns
-
-Based on the provided context, I cannot find information about Express route handler standards and patterns.
-
-The context documents focus on:
 - **Lambda handler standards** (ADR-004) for AWS serverless applications, including API Gateway handlers, event-driven handlers, and internal workers
 - **Frontend standards** (ADR-005) for React applications using the `apiFetch` helper
 - **Testing standards** for Lambda functions
 - **ADR creation guidelines**
-
-None of these documents discuss Express.js or Express route handlers. The API patterns described are specifically for AWS Lambda functions invoked via API Gateway, not Express.js web servers.
-
-If you need information about Express route handler standards for this project, that documentation would need to be provided in the context.
 - # Query: Node.js error handling and middleware patterns
-
-I don't have enough information in the provided context to answer questions about Node.js error handling and middleware patterns.
-
-The context provided focuses exclusively on **Python-based AWS Lambda handlers** and includes:
-
 - **Document 1**: Lambda handler standards for Python (using boto3, Pydantic validation, JWT authentication)
 - **Document 2**: Python implementation of a query-kb Lambda orchestrator
 - **Document 3**: Python implementation of an ask-claude Lambda using AWS Bedrock
 - **Document 4**: Python implementation of an ingest-docs Lambda
 - **Document 5**: Python implementation of a run-tests Lambda
-
-All the architectural decisions, code examples, and patterns documented are specific to Python serverless applications on AWS Lambda, not Node.js applications.
-
-To answer your question about Node.js error handling and middleware patterns, I would need context documents that cover Node.js-specific standards, such as:
 - Express.js or similar framework middleware patterns
 - Node.js error handling conventions
 - Async/await error patterns in Node.js
 - Node.js-specific ADRs or coding standards
 - # Query: TypeScript Express API structure
-
-Based on the provided context, I cannot find specific information about TypeScript Express API structure.
-
-The documents provided cover:
-
-1. **Fantacyai-UI** - A React/TypeScript frontend application with a component-based architecture (Document 1)
-
-2. **OutcomeOps AI Assist Frontend** - A React-based SPA using Vite, TypeScript, Tailwind CSS, and React Router (Document 2 - ADR-005)
-
-3. **Terraform-Serverless** - A serverless booking application using AWS Lambda, API Gateway, and Node.js (Documents 3 & 4)
-
-4. **Code Maps Lambda** - Documentation about generating architectural summaries (Document 5)
-
-While these documents mention TypeScript usage, none of them describe a **TypeScript Express API structure** specifically. The closest relevant information is:
-
 - Document 2 shows a React frontend project structure with TypeScript
 - Documents 3 & 4 describe a serverless Node.js API using AWS Lambda and API Gateway (not Express)
-
-To answer your question about TypeScript Express API structure, I would need documentation or ADRs that specifically cover Express.js backend architecture, which is not present in the provided context.
 
 ### Terraform Standards
 
 - # Query: Terraform Node.js deployment configuration
 
-Based on the provided context, I can only find limited information about Terraform deployment configuration for Node.js applications.
-
-## Available Information
-
-According to the **config-summary from terraform-serverless**, there is a booking/reservation system that uses:
-
-- **Runtime**: Node.js 12.x across all services
-- **Region**: us-east-1
-- **Framework**: Serverless Framework (not pure Terraform)
-- **Memory Configuration**: Variable by service (e.g., SMS notification uses 128MB in dev, 2048MB in prod)
-
-The system consists of 4 microservices:
-1. API Service (5 Lambda functions)
-2. Bookings Consumer (stream listener)
-3. Email Notification (SQS-triggered)
-4. SMS Notification (SQS-triggered)
-
-## Key Configuration Details
-
-From the terraform-serverless documentation:
-- All services use **Node.js 12.x runtime**
-- Deploy to **us-east-1 region**
-- IAM roles and secrets managed via **AWS SSM Parameter Store**
-- **Stage-based configuration** (dev/prod)
-
-## Limitations
-
-However, the provided context does **not include**:
-- Specific Terraform configuration files for Node.js Lambda deployments
-- Package.json or dependency management details
-- Build/bundling configuration
-- Terraform module usage for Node.js Lambdas
-- Version pinning for Node.js-related Terraform modules
-
-The context primarily focuses on:
-- General Terraform workflow standards (ADR-004)
-- Python-based Lambda deployments (outcome-ops-ai-assist)
-- Serverless Framework configuration rather than pure Terraform
-
-**To provide complete Terraform Node.js deployment configuration details, I would need access to the actual Terraform `.tf` files from the terraform-serverless project.**
-- # Query: Terraform resource naming conventions
-
-# Terraform Resource Naming Conventions
-
-According to **ADR-004-terraform-workflow**, all resources **MUST** follow this naming pattern:
-
-```
-${var.environment}-${var.app_name}-{resource-name}
-```
-
-## Required Variables
-
-Every Terraform project must include these variables:
-
-```hcl
-variable "environment" {
-  description = "Environment name (dev, staging, prd)"
-  type        = string
-}
-
-variable "app_name" {
-  description = "Application name prefix for resources"
-  type        = string
-}
-```
-
-## Implementation Pattern
-
-**Use locals for consistent prefixing:**
-
-```hcl
-locals {
-  name_prefix = "${var.environment}-${var.app_name}"
-}
-
-# Then use throughout:
-name = "${local.name_prefix}-licenses"
-```
-
-## Examples by Resource Type
-
-According to ADR-004, here are the naming conventions for different AWS resources:
-
-- **DynamoDB table**: `${var.environment}-${var.app_name}-licenses`
-  - Result: `dev-outcomeops-licenses`, `prd-outcomeops-licenses`
-
-- **Lambda function**: `${var.environment}-${var.app_name}-generate-code`
-  - Result: `dev-outcomeops-generate-code`, `prd-outcomeops-generate-code`
-
-- **S3 bucket**: `${var.environment}-${var.app_name}-artifacts`
-  - Result: `dev-outcomeops-artifacts`, `prd-outcomeops-artifacts`
-
-- **Secrets Manager**: `${var.environment}-${var.app_name}/license/private-key`
-  - Result: `dev-outcomeops/license/private-key`
-
-This naming convention ensures standardized resource naming across all environments and makes it easy to identify which environment and application a resource belongs to.
-- # Query: ECS or Lambda Node.js deployment patterns
-
-Based on the provided context, I can only provide information about **Lambda Node.js deployment patterns**, as there is no information about ECS deployment patterns in the documents.
-
-## Lambda Node.js Deployment Patterns
-
-According to the terraform-serverless repository documentation, the following Lambda Node.js deployment pattern is used:
-
-### Serverless Framework Pattern
-
-**Runtime & Configuration:**
-- All Lambda functions use **Node.js 12.x** runtime
-- Deploy to **us-east-1** region
-- Stage-based configuration (dev/prod)
-- IAM roles and secrets managed via **AWS SSM Parameter Store**
-
-### Architecture Pattern
-
-The system implements an **Event-Driven Serverless Microservices Architecture** with:
-
-1. **API Gateway-driven REST endpoints** for synchronous operations
-2. **DynamoDB Streams** for event-driven processing
-3. **SNS/SQS** for asynchronous notification delivery
-4. Decoupled services communicating through AWS managed services
-
-### Service Organization
-
-The codebase is organized into 4 microservices (from config-summary):
-
-1. **API Service** - 5 Lambda functions (register, login, create_booking, list_bookings, authorizer)
-2. **Bookings Consumer** - Stream listener for DynamoDB events
-3. **Email Notification** - SQS-triggered email sender
-4. **SMS Notification** - SQS-triggered SMS sender (128MB dev, 2048MB prod)
-
-### Deployment Tooling
-
-- **Terraform**: Infrastructure provisioning (DynamoDB, IAM, SNS, SQS, SSM)
-- **Serverless Framework**: Lambda deployment and API Gateway configuration
-- Shell scripts: `deploy.sh`, `destroy.sh` for multi-stage deployment
-
----
-
-**Note:** The provided context contains no information about ECS deployment patterns. If you need ECS-specific guidance, that information is not available in these documents.
-
 ### Testing Standards
 
 - # Query: Jest testing standards and patterns
-
-Based on the provided context, **there are no Jest testing standards or patterns documented**. 
-
-The testing standards in the context are exclusively for **Python-based testing using pytest**, not Jest (which is a JavaScript testing framework).
-
-According to the documented standards:
-
 - **ADR-003** and **ADR-005** establish testing standards for a "Python-based serverless application built on AWS Lambda"
 - The mandated testing framework is **pytest** with pytest-cov for coverage reporting
 - All testing patterns, examples, and infrastructure shown use Python (mocking with moto, boto3 for AWS services, Pydantic for data models)
-
-From **ADR-003**: "**Framework:** pytest with pytest-cov for coverage reporting"
-
-From **ADR-005**: The test suite uses "pytest with mocking patterns" and follows Python-specific patterns like the Arrange-Act-Assert (AAA) pattern.
-
-If you need Jest testing standards for this project, they would need to be documented separately, as the current architecture documentation only covers Python/pytest-based testing for Lambda functions.
 - # Query: TypeScript API testing best practices
-
-Based on the provided context, I cannot find information about TypeScript API testing best practices.
-
-The context documents focus exclusively on **Python-based testing practices** for a serverless application built on AWS Lambda. The testing standards and patterns described are specifically for:
-
 - Python testing with pytest
 - Lambda function testing in Python
 - AWS service mocking using moto (Python library)
 - Python-specific patterns like dynamic module loading with `importlib`
-
-The documents mention testing patterns such as:
 - Arrange-Act-Assert pattern
 - Unit/integration/functional test pyramid
 - Mocking strategies for AWS services
-
-However, **none of the provided documents discuss TypeScript, JavaScript, or API testing practices for TypeScript-based applications**.
-
-To get information about TypeScript API testing best practices, you would need context documents that specifically cover TypeScript testing frameworks (like Jest, Mocha, or Vitest), TypeScript-specific testing patterns, or API testing tools relevant to TypeScript applications.
 - # Query: Supertest integration testing patterns
-
-Based on the provided context, **there is no information about Supertest integration testing patterns**.
-
-The context documents describe testing patterns for a Python-based AWS Lambda application called "OutcomeOps AI Assist" that uses:
-
 - **pytest** as the testing framework
 - **moto** for AWS service mocking
 - **unittest.mock.patch** for external dependencies
 
-According to the testing standards in the context (ADR-003 and ADR-005), the integration testing patterns used are:
-
-1. **Mock-Based Integration Testing** using moto library for AWS services (S3, DynamoDB, SSM, Bedrock)
-2. **Fixture-Based Setup** with pytest fixtures
-3. **Arrange-Act-Assert Pattern** for test structure
-
-However, **Supertest** (which is typically a Node.js/JavaScript library for testing HTTP APIs) is not mentioned anywhere in the provided documentation. The application appears to be entirely Python-based with no JavaScript/Node.js components described.
-
-If you're looking for integration testing patterns for this specific project, the relevant patterns are documented in Document 1 (Integration Tests Summary) and Documents 2, 4 (ADR-003 and ADR-005 Testing Standards).
-
 ## Implementation Steps
 
-### Step 1: Create get-booking handler directory and handler.js ⏳
+### Step 1: Create get-booking handler directory and handler.js 🔄
 
-**Status:** pending
+**Status:** in_progress
 **Description:** Create the Lambda handler for retrieving a booking by ID. Implement UUID validation, DynamoDB query, and authorization logic (user owns booking OR is ADMIN). Follow existing handler patterns from create-booking and list-bookings.
 
 **Files:**
@@ -514,3 +301,9 @@ If you're looking for integration testing patterns for this specific project, th
 **Description:** Verify deploy.sh includes the get-booking service deployment. Update if necessary to ensure Terraform applies IAM changes before Serverless Framework deployment.
 
 ---
+
+## Total Cost
+
+**Total:** $0.000000
+**Input Tokens:** 0
+**Output Tokens:** 0
