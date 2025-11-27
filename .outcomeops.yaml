@@ -8,8 +8,8 @@
 # Code generation settings
 code_generation:
   # Backend selection - Node.js Lambda handlers
-  # Using typescript-express as closest match for JavaScript/Node.js
-  backend: "typescript-express"
+  # Using typescript backend for JavaScript/Node.js Lambda handlers
+  backend: "typescript"
 
   # Handler directories - parent directories where Lambda handlers live
   # Each subdirectory containing handler.js becomes a code unit
