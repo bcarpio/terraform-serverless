@@ -4,11 +4,11 @@
 **Branch:** `1-lambda-add-get-booking-by-id-handler-for-booking-l`
 **Repository:** bcarpio/terraform-serverless
 **Backend:** typescript
-**Created:** 2025-11-27T22:49:24.150811
+**Created:** 2025-11-27T23:59:41.636120
 
 ## Issue Description
 
-User Story
+  User Story
 
   As a user,
   I want to retrieve a specific booking by its ID,
@@ -159,185 +159,381 @@ User Story
 ### Lambda Standards
 
 - # Query: Express route handler standards and patterns
+
+Based on the provided context, I cannot find information about Express route handler standards and patterns.
+
+The context documents cover:
 - **Lambda handler standards** (ADR-004) for AWS serverless applications, including API Gateway handlers, event-driven handlers, and internal workers
 - **Frontend standards** (ADR-005) for React applications using the `apiFetch` helper
 - **Testing standards** for Lambda functions
 - **ADR creation guidelines**
+
+However, none of these documents discuss Express.js or Express route handlers. The API patterns described are specifically for:
+1. AWS Lambda functions invoked via API Gateway (not Express)
+2. React frontend API clients using fetch/apiFetch
+
+If you need Express route handler standards for this project, that information is not present in the provided context documents.
 - # Query: Node.js error handling and middleware patterns
-- **Document 1**: Lambda handler standards for Python (using boto3, Pydantic validation, JWT authentication)
-- **Document 2**: Python implementation of a query-kb Lambda orchestrator
-- **Document 3**: Python implementation of an ask-claude Lambda using AWS Bedrock
-- **Document 4**: Python implementation of an ingest-docs Lambda
-- **Document 5**: Python implementation of a run-tests Lambda
-- Express.js or similar framework middleware patterns
+
+I don't have enough information in the provided context to answer questions about Node.js error handling and middleware patterns.
+
+The provided context focuses exclusively on **Python-based AWS Lambda handlers** and includes:
+
+- **Document 1**: Lambda handler standards for Python (logging, AWS clients, Pydantic validation)
+- **Document 2**: Python implementation of `query-kb` Lambda orchestrator
+- **Document 3**: Python implementation of `ask-claude` Lambda using AWS Bedrock
+- **Document 4**: Python implementation of `ingest-docs` Lambda for GitHub documentation
+- **Document 5**: Python implementation of `run-tests` Lambda handler
+
+All examples and patterns in the context are specific to:
+- Python Lambda functions
+- AWS services (DynamoDB, SSM Parameter Store, Bedrock)
+- Python-specific libraries (Pydantic, boto3)
+
+**To answer your question about Node.js**, I would need context documents that cover:
+- Node.js/Express middleware patterns
 - Node.js error handling conventions
-- Async/await error patterns in Node.js
-- Node.js-specific ADRs or coding standards
+- Node.js Lambda handler standards (if applicable)
+- Node.js-specific architectural decision records
+
+The current context does not contain any Node.js-related standards or patterns.
 - # Query: TypeScript Express API structure
-- Document 2 shows a React frontend project structure with TypeScript
-- Documents 3 & 4 describe a serverless Node.js API using AWS Lambda and API Gateway (not Express)
+
+Based on the provided context, I don't have specific information about TypeScript Express API structure.
+
+The documents provided cover:
+
+1. **Fantacyai-UI** - A React/TypeScript frontend application with a component-based architecture (Document 1)
+2. **OutcomeOps AI Assist Frontend** - A React-based SPA using Vite, TypeScript, and Tailwind CSS (Document 2 - ADR-005)
+3. **Terraform-Serverless** - A serverless booking application using AWS Lambda, API Gateway, and Node.js (Documents 3 & 4)
+4. **Code Maps Lambda** - Documentation about generating code maps for repositories (Document 5)
+
+None of these documents describe a TypeScript Express API structure. The closest relevant information is:
+
+- **Document 4** mentions Node.js Lambda functions for API operations, but these use AWS Lambda/API Gateway rather than Express
+- **Documents 1 & 2** describe TypeScript project structures, but these are for React frontend applications, not Express APIs
+
+To answer your question about TypeScript Express API structure, I would need documentation or ADRs specifically covering Express.js backend architecture, routing patterns, middleware organization, or similar Express-specific topics.
 
 ### Terraform Standards
 
 - # Query: Terraform Node.js deployment configuration
 
+Based on the provided context, I can only find limited information about Terraform deployment configuration for Node.js applications.
+
+## What the Context Shows
+
+According to the **config-summary from terraform-serverless** (Document 3), there is a booking/reservation system that uses:
+
+- **Runtime**: Node.js 12.x across all services
+- **Region**: us-east-1
+- **Framework**: Serverless Framework (not pure Terraform)
+- **Memory Configuration**: Variable by service (e.g., SMS notification uses 128MB in dev, 2048MB in prod)
+
+The document states: "All use **Node.js 12.x** runtime" and "Deploy to **us-east-1** region" with "Stage-based configuration (dev/prod)".
+
+## What's Missing
+
+The provided context does **not** contain:
+
+1. Specific Terraform configuration examples for Node.js Lambda deployments
+2. How to package Node.js dependencies for Lambda in Terraform
+3. Node.js-specific environment variable configuration
+4. Build or bundling processes for Node.js code
+5. Node.js version management in Terraform
+
+## Available Terraform Standards
+
+The context does provide general Terraform standards from **ADR-004-terraform-workflow** (Document 1), including:
+
+- Resource naming conventions: `${var.environment}-${var.app_name}-{resource-name}`
+- Module version pinning requirements
+- Deployment workflow using plan files
+- But these are **language-agnostic** and don't address Node.js-specific concerns
+
+**To get Node.js-specific Terraform deployment configuration, you would need additional documentation that covers Lambda function packaging, runtime configuration, and dependency management for Node.js applications.**
+- # Query: Terraform resource naming conventions
+
+# Terraform Resource Naming Conventions
+
+According to **ADR-004-terraform-workflow**, all resources **MUST follow this naming pattern**:
+
+```
+${var.environment}-${var.app_name}-{resource-name}
+```
+
+## Required Variables
+
+Every Terraform project must include these variables:
+
+```hcl
+variable "environment" {
+  description = "Environment name (dev, staging, prd)"
+  type        = string
+}
+
+variable "app_name" {
+  description = "Application name prefix for resources"
+  type        = string
+}
+```
+
+## Implementation Pattern
+
+**Use locals for consistent prefixing:**
+
+```hcl
+locals {
+  name_prefix = "${var.environment}-${var.app_name}"
+}
+
+# Then use throughout:
+name = "${local.name_prefix}-licenses"
+```
+
+## Examples by Resource Type
+
+According to ADR-004, here are the naming patterns for different AWS resources:
+
+- **DynamoDB table**: `${var.environment}-${var.app_name}-licenses`
+  - Result: `dev-outcomeops-licenses`, `prd-outcomeops-licenses`
+
+- **Lambda function**: `${var.environment}-${var.app_name}-generate-code`
+  - Result: `dev-outcomeops-generate-code`, `prd-outcomeops-generate-code`
+
+- **S3 bucket**: `${var.environment}-${var.app_name}-artifacts`
+  - Result: `dev-outcomeops-artifacts`, `prd-outcomeops-artifacts`
+
+- **Secrets Manager**: `${var.environment}-${var.app_name}/license/private-key`
+  - Result: `dev-outcomeops/license/private-key`
+
+This naming convention ensures **standardized resource naming across all environments** and enables clear identification of which environment and application each resource belongs to.
+- # Query: ECS or Lambda Node.js deployment patterns
+
+Based on the provided context, I can only provide information about **Lambda Node.js deployment patterns**, as there is no information about ECS deployment patterns in the documents.
+
+## Lambda Node.js Deployment Patterns
+
+According to the terraform-serverless repository documentation:
+
+### Architecture Pattern
+The system uses an **Event-Driven Serverless Microservices Architecture** with the following characteristics:
+
+- **API Gateway-driven REST endpoints** for synchronous operations
+- **DynamoDB Streams** for event-driven processing
+- **SNS/SQS** for asynchronous notification delivery
+- Decoupled services communicating through AWS managed services
+
+### Deployment Approach
+The repository demonstrates a **dual-tooling pattern**:
+
+1. **Terraform**: Used for infrastructure provisioning (DynamoDB, IAM, SNS, SQS, SSM Parameter Store)
+2. **Serverless Framework**: Used for Lambda deployment and API Gateway configuration
+
+### Runtime Configuration
+All Lambda functions use:
+- **Node.js 12.x** runtime
+- Deploy to **us-east-1** region
+- IAM roles and secrets managed via **AWS SSM Parameter Store**
+- Stage-based configuration (dev/prod)
+
+### Service Organization
+The booking system is organized into 4 microservices:
+- **API Service** (5 Lambda functions for user registration, login, bookings)
+- **Bookings Consumer** (event-driven processor listening to DynamoDB Streams)
+- **Email Notification** (SQS-triggered)
+- **SMS Notification** (SQS-triggered with configurable memory: 128MB dev, 2048MB prod)
+
+### Deployment Scripts
+The system uses shell scripts for deployment orchestration:
+- `deploy.sh` for deployment
+- `destroy.sh` for teardown
+- Multi-stage deployment support
+
+**Note**: The context does not contain any information about ECS deployment patterns or how to deploy Node.js applications to ECS.
+
 ### Testing Standards
 
 - # Query: Jest testing standards and patterns
-- **ADR-003** and **ADR-005** establish testing standards for a "Python-based serverless application built on AWS Lambda"
-- The mandated testing framework is **pytest** with pytest-cov for coverage reporting
-- All testing patterns, examples, and infrastructure shown use Python (mocking with moto, boto3 for AWS services, Pydantic for data models)
+
+Based on the provided context, **there are no Jest testing standards or patterns documented** for this project.
+
+The context exclusively describes **pytest** as the testing framework for this Python-based serverless application. According to **ADR-003: Testing Standards** and **ADR-005: Testing Standards for Lambda Functions**, the project uses:
+
+- **Framework**: pytest with pytest-cov for coverage reporting
+- **Language**: Python
+- **AWS Service Mocking**: moto library (not Jest mocks)
+
+The documented testing patterns include:
+- Arrange-Act-Assert (AAA) pattern
+- pytest fixtures and conftest.py configuration
+- moto decorators for AWS service mocking
+- Dynamic module loading with importlib
+
+Since this is a Python/Lambda project, Jest (a JavaScript testing framework) is not part of the technology stack or testing standards. If you're looking for testing standards for this project, the relevant documentation is in ADR-003 and ADR-005, which cover pytest-based testing approaches.
 - # Query: TypeScript API testing best practices
-- Python testing with pytest
-- Lambda function testing in Python
-- AWS service mocking using moto (Python library)
-- Python-specific patterns like dynamic module loading with `importlib`
-- Arrange-Act-Assert pattern
-- Unit/integration/functional test pyramid
-- Mocking strategies for AWS services
+
+I cannot provide information about TypeScript API testing best practices based on the provided context.
+
+The context documents focus exclusively on **Python-based testing practices** for a serverless application built on AWS Lambda. Specifically, the documents cover:
+
+- Testing standards for Python Lambda functions using pytest
+- Mocking AWS services (DynamoDB, S3, Bedrock, SQS) using moto
+- Python-specific patterns like the Arrange-Act-Assert pattern
+- Testing frameworks: pytest with pytest-cov
+
+There is **no mention of TypeScript** or TypeScript-specific testing practices in any of the provided documents (ADR-003, ADR-005, test summaries, or implementation documentation).
+
+To answer your question about TypeScript API testing best practices, I would need context documents that specifically address TypeScript testing approaches, frameworks (such as Jest, Mocha, or Vitest), and TypeScript-specific testing patterns.
 - # Query: Supertest integration testing patterns
+
+Based on the provided context, **there is no information about Supertest integration testing patterns**.
+
+The context documents describe testing patterns for a Python-based serverless application using:
+
 - **pytest** as the testing framework
 - **moto** for AWS service mocking
 - **unittest.mock.patch** for external dependencies
 
+According to Document 1 and Document 3, the integration testing patterns used in this codebase are:
+
+1. **Mock-Based Integration Testing** using the `moto` library for AWS services (S3, DynamoDB, SSM)
+2. **Fixture-Based Setup** with pytest fixtures
+3. **Dynamic Module Loading** using `importlib` to load Lambda handlers
+4. **Arrange-Act-Assert Pattern** for test structure
+
+However, **Supertest** (which is typically a Node.js/JavaScript library for HTTP assertion testing) is not mentioned anywhere in the provided documentation. The context only covers Python-based testing approaches for AWS Lambda functions.
+
+If you need information about Supertest patterns specifically, that information is not available in these documents.
+
 ## Implementation Steps
 
-### Step 1: Create get-booking handler directory and handler.js ✅
+### Step 1: Create get-booking handler directory and main handler file ⏳
 
-**Status:** completed
-**Description:** Create the Lambda handler for retrieving a booking by ID. Implement UUID validation, DynamoDB query, and authorization logic (user owns booking OR is ADMIN). Follow existing handler patterns from create-booking and list-bookings.
+**Status:** pending
+**Description:** Create the api/get-booking/ directory structure and implement the main Lambda handler with UUID validation, DynamoDB lookup, and authorization logic following existing patterns from create-booking and list-bookings handlers
 
 **Files:**
 - `api/get-booking/handler.js`
 
 **KB Queries:**
 - UUID validation in Node.js Lambda handlers
-- DynamoDB GetItem with AWS SDK v2 DocumentClient
-
-**Completed:** 2025-11-27T22:51:38.672259
-
-**Cost:** $0.074688 (2801 input tokens, 4419 output tokens)
+- DynamoDB GetItem operation with AWS SDK v2 DocumentClient
 
 ---
 
-### Step 2: Create serverless.yml for get-booking function ✅
+### Step 2: Create serverless.yml for get-booking function ⏳
 
-**Status:** completed
-**Description:** Add serverless.yml configuration for the get-booking Lambda function. Configure API Gateway GET endpoint at /bookings/{id}, set timeout to 30s, memory to 256MB, reference IAM role from SSM, and use existing authorizer.
+**Status:** pending
+**Description:** Create serverless.yml configuration for the get-booking Lambda function with API Gateway HTTP GET endpoint, environment variables from SSM, and IAM role reference following the pattern from existing api service functions
 
 **Files:**
 - `api/get-booking/serverless.yml`
 
 **KB Queries:**
-- Serverless Framework path parameters configuration
-- Serverless Framework custom authorizer reference
-
-**Completed:** 2025-11-27T22:52:53.110207
-
-**Cost:** $0.041085 (8145 input tokens, 1110 output tokens)
+- Serverless Framework HTTP GET path parameters configuration
+- Serverless Framework custom authorizer integration
 
 ---
 
-### Step 3: Add get-booking IAM role in Terraform ✅
+### Step 3: Update main API serverless.yml to include get-booking function ⏳
 
-**Status:** completed
-**Description:** Create IAM role for get-booking Lambda with DynamoDB GetItem permissions on bookings table. Store role ARN in SSM parameter following existing pattern.
+**Status:** pending
+**Description:** Add the get-booking function definition to api/serverless.yml following the existing pattern for create-booking and list-bookings, including the GET /bookings/{id} endpoint with authorizer
+
+---
+
+### Step 4: Create Terraform IAM role for get-booking Lambda ⏳
+
+**Status:** pending
+**Description:** Create Terraform configuration for the get-booking Lambda IAM role with DynamoDB GetItem permissions on the bookings table, following the pattern from existing Lambda roles in terraform/infra/
 
 **Files:**
 - `terraform/infra/system/iam-get-booking.tf`
 
-**Completed:** 2025-11-27T22:53:58.523577
-
-**Cost:** $0.083619 (8803 input tokens, 3814 output tokens)
+**KB Queries:**
+- Terraform IAM policy for DynamoDB GetItem operation
 
 ---
 
-### Step 4: Create unit tests for get-booking success cases ✅
+### Step 5: Create SSM parameter for get-booking IAM role ARN ⏳
 
-**Status:** completed
-**Description:** Create unit tests for happy path scenarios: (1) booking owner retrieves their booking successfully, (2) ADMIN user retrieves any booking successfully. Mock DynamoDB responses and JWT context.
+**Status:** pending
+**Description:** Add Terraform SSM parameter resource to store the get-booking Lambda IAM role ARN for reference in serverless.yml, following the existing pattern for other Lambda role ARNs
+
+---
+
+### Step 6: Create unit tests for successful booking retrieval by owner ⏳
+
+**Status:** pending
+**Description:** Create Jest unit tests for the happy path scenarios: valid booking ID format, successful DynamoDB lookup, and booking owner authorization returning 200 with booking details
 
 **Files:**
 - `api/get-booking/handler.test.js`
 
 **KB Queries:**
-- Jest mocking AWS SDK v2 DocumentClient
-- Testing Lambda event.requestContext.authorizer
-
-**Completed:** 2025-11-27T22:56:23.139144
-
-**Cost:** $0.169404 (14123 input tokens, 8469 output tokens)
+- Jest mocking AWS SDK v2 DocumentClient get operation
+- Jest test structure for Lambda handlers with API Gateway events
 
 ---
 
-### Step 5: Create unit tests for get-booking validation errors ✅
+### Step 7: Create unit tests for ADMIN user access ⏳
 
-**Status:** completed
-**Description:** Add unit tests for validation error cases: (1) invalid UUID format returns 400, (2) malformed booking ID returns 400 with proper error message.
-
-**Files:**
-- `api/get-booking/handler.test.js`
-
-**Completed:** 2025-11-27T22:59:46.546420
-
-**Cost:** $0.352836 (22617 input tokens, 18999 output tokens)
+**Status:** pending
+**Description:** Create Jest unit tests for ADMIN role authorization: ADMIN user successfully retrieving any booking regardless of ownership, returning 200 with booking details
 
 ---
 
-### Step 6: Create unit tests for get-booking authorization errors ✅
+### Step 8: Create unit tests for validation errors ⏳
 
-**Status:** completed
-**Description:** Add unit tests for authorization scenarios: (1) non-owner non-ADMIN user gets 403, (2) booking not found returns 404, (3) DynamoDB error returns 500.
+**Status:** pending
+**Description:** Create Jest unit tests for invalid booking ID format validation, testing that malformed UUIDs return 400 with appropriate error message
 
-**Files:**
-- `api/get-booking/handler.test.js`
-
-**Completed:** 2025-11-27T23:04:42.525668
-
-**Cost:** $0.528309 (33588 input tokens, 28503 output tokens)
+**KB Queries:**
+- Jest expect assertions for HTTP 400 error responses
 
 ---
 
-### Step 7: Create integration tests for get-booking endpoint ✅
+### Step 9: Create unit tests for booking not found scenario ⏳
 
-**Status:** completed
-**Description:** Add integration tests using supertest: (1) GET /bookings/{id} with valid token returns booking, (2) GET with invalid ID returns 400, (3) GET without authorization returns 401.
+**Status:** pending
+**Description:** Create Jest unit tests for 404 error handling when DynamoDB returns empty result for non-existent booking ID
+
+---
+
+### Step 10: Create unit tests for authorization failures ⏳
+
+**Status:** pending
+**Description:** Create Jest unit tests for 403 forbidden scenarios: non-ADMIN user attempting to access another user's booking, returning appropriate error message
+
+---
+
+### Step 11: Create unit tests for DynamoDB error handling ⏳
+
+**Status:** pending
+**Description:** Create Jest unit tests for 500 internal server error when DynamoDB operations fail, verifying error logging and response format
+
+**KB Queries:**
+- Jest mocking DynamoDB errors and exceptions
+
+---
+
+### Step 12: Create integration tests for successful retrieval flows ⏳
+
+**Status:** pending
+**Description:** Create integration tests using supertest (or equivalent for Lambda) to test end-to-end successful booking retrieval by owner and by ADMIN user with real API Gateway event structure
 
 **Files:**
 - `api/get-booking/integration.test.js`
 
 **KB Queries:**
-- Supertest testing API Gateway Lambda endpoints
-- Integration testing with JWT tokens in Node.js
-
-**Completed:** 2025-11-27T23:08:35.069978
-
-**Cost:** $0.384909 (44173 input tokens, 16826 output tokens)
+- Integration testing patterns for AWS Lambda with API Gateway events
 
 ---
 
-### Step 8: Update API service serverless.yml to include get-booking ✅
+### Step 13: Create integration tests for error scenarios ⏳
 
-**Status:** completed
-**Description:** Add get-booking function configuration to api/serverless.yml following the pattern of existing functions (create-booking, list-bookings). Include function definition, events, and environment variables.
-
-**Completed:** 2025-11-27T23:09:28.632671
-
-**Cost:** $0.228267 (61454 input tokens, 2927 output tokens)
+**Status:** pending
+**Description:** Create integration tests for validation errors, not found, and authorization failures using complete API Gateway event payloads with authorization context
 
 ---
-
-### Step 9: Update deployment scripts if needed ❌
-
-**Status:** failed
-**Description:** Verify deploy.sh includes the get-booking service deployment. Update if necessary to ensure Terraform applies IAM changes before Serverless Framework deployment.
-
-**Error:** Code generation truncated for step 9. Step may be too large - consider splitting into smaller steps.
-
----
-
-## Total Cost
-
-**Total:** $1.863117
-**Input Tokens:** 195,704
-**Output Tokens:** 85,067
