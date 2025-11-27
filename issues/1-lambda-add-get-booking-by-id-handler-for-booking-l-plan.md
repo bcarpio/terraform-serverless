@@ -220,9 +220,9 @@ User Story
 
 ---
 
-### Step 2: Create serverless.yml for get-booking function 🔄
+### Step 2: Create serverless.yml for get-booking function ✅
 
-**Status:** in_progress
+**Status:** completed
 **Description:** Add serverless.yml configuration for the get-booking Lambda function. Configure API Gateway GET endpoint at /bookings/{id}, set timeout to 30s, memory to 256MB, reference IAM role from SSM, and use existing authorizer.
 
 **Files:**
@@ -231,6 +231,10 @@ User Story
 **KB Queries:**
 - Serverless Framework path parameters configuration
 - Serverless Framework custom authorizer reference
+
+**Completed:** 2025-11-27T22:52:53.110207
+
+**Cost:** $0.041085 (8145 input tokens, 1110 output tokens)
 
 ---
 
@@ -308,6 +312,6 @@ User Story
 
 ## Total Cost
 
-**Total:** $0.074688
-**Input Tokens:** 2,801
-**Output Tokens:** 4,419
+**Total:** $0.115773
+**Input Tokens:** 10,946
+**Output Tokens:** 5,529
