@@ -335,9 +335,9 @@ User Story
 
 ---
 
-### Step 10: Create unit tests for authorization failures ⏳
+### Step 10: Create unit tests for authorization failures 🔄
 
-**Status:** pending
+**Status:** in_progress
 **Description:** Create Jest unit tests for 403 forbidden scenarios: non-ADMIN user attempting to access another user's booking, returning appropriate error message
 
 ---
