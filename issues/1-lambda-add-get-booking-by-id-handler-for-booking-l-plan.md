@@ -253,9 +253,9 @@ User Story
 
 ---
 
-### Step 4: Create Terraform IAM role for get-booking Lambda ⏳
+### Step 4: Create Terraform IAM role for get-booking Lambda 🔄
 
-**Status:** pending
+**Status:** in_progress
 **Description:** Create Terraform configuration for the get-booking Lambda IAM role with DynamoDB GetItem permissions on the bookings table, following the pattern from existing Lambda roles in terraform/infra/
 
 **Files:**
