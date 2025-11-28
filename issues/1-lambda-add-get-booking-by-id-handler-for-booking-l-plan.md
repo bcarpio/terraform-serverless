@@ -281,9 +281,9 @@ User Story
 
 ---
 
-### Step 6: Create unit tests for successful booking retrieval by owner ⏳
+### Step 6: Create unit tests for successful booking retrieval by owner 🔄
 
-**Status:** pending
+**Status:** in_progress
 **Description:** Create Jest unit tests for the happy path scenarios: valid booking ID format, successful DynamoDB lookup, and booking owner authorization returning 200 with booking details
 
 **Files:**
