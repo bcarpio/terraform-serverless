@@ -242,9 +242,9 @@ User Story
 
 ---
 
-### Step 3: Update main API serverless.yml to include get-booking function ⏳
+### Step 3: Update main API serverless.yml to include get-booking function 🔄
 
-**Status:** pending
+**Status:** in_progress
 **Description:** Add the get-booking function definition to api/serverless.yml following the existing pattern for create-booking and list-bookings, including the GET /bookings/{id} endpoint with authorizer
 
 ---
