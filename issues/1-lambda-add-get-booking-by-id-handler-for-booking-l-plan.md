@@ -299,9 +299,9 @@ User Story
 
 ---
 
-### Step 7: Create unit tests for ADMIN user access ⏳
+### Step 7: Create unit tests for ADMIN user access 🔄
 
-**Status:** pending
+**Status:** in_progress
 **Description:** Create Jest unit tests for ADMIN role authorization: ADMIN user successfully retrieving any booking regardless of ownership, returning 200 with booking details
 
 ---
