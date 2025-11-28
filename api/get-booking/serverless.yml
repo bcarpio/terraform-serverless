@@ -1,0 +1,41 @@
+service: get-booking
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  region: ${opt:env, 'us-east-1'}
+  stage: ${opt:env, 'dev'}
+
+functions:
+  get-booking:
+    handler: handler.handler
+    timeout: 30
+    memorySize: 256
+    role: ${ssm:/${self:provider.stage}/iam/lambda-role}
+    environment:
+      AWS_REGION: ${self:provider.region}
+      DYNAMODB_BOOKINGS: ${ssm:/${self:provider.stage}/dynamodb/bookings}
+    events:
+      - http:
+          path: /bookings/{id}
+          method: get
+          authorizer:
+            name: authorizer
+            arn: ${ssm:/${self:provider.stage}/lambda/authorizer-arn}
+            resultTtlInSeconds: 300
+            identitySource: method.request.header.Authorization
+            type: token
+          request:
+            parameters:
+              paths:
+                id: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
