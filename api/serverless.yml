@@ -1,4 +1,4 @@
-service: api
+service: booking-api
 
 provider:
   name: aws
@@ -11,7 +11,7 @@ functions:
     handler: create-booking/handler.handler
     timeout: 30
     memorySize: 256
-    role: ${ssm:/${self:provider.stage}/iam/create-booking-role-arn}
+    role: ${ssm:/${self:provider.stage}/iam/lambda-role}
     environment:
       AWS_REGION: ${self:provider.region}
       DYNAMODB_BOOKINGS: ${ssm:/${self:provider.stage}/dynamodb/bookings}
@@ -40,7 +40,7 @@ functions:
     handler: list-bookings/handler.handler
     timeout: 30
     memorySize: 256
-    role: ${ssm:/${self:provider.stage}/iam/list-bookings-role-arn}
+    role: ${ssm:/${self:provider.stage}/iam/lambda-role}
     environment:
       AWS_REGION: ${self:provider.region}
       DYNAMODB_BOOKINGS: ${ssm:/${self:provider.stage}/dynamodb/bookings}
@@ -69,7 +69,7 @@ functions:
     handler: get-booking/handler.handler
     timeout: 30
     memorySize: 256
-    role: ${ssm:/${self:provider.stage}/iam/get-booking-role-arn}
+    role: ${ssm:/${self:provider.stage}/iam/lambda-role}
     environment:
       AWS_REGION: ${self:provider.region}
       DYNAMODB_BOOKINGS: ${ssm:/${self:provider.stage}/dynamodb/bookings}
@@ -83,6 +83,10 @@ functions:
             resultTtlInSeconds: 300
             identitySource: method.request.header.Authorization
             type: token
+          request:
+            parameters:
+              paths:
+                id: true
           cors:
             origin: '*'
             headers:
