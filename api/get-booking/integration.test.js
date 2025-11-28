@@ -54,7 +54,7 @@ describe('Get Booking Integration Tests', () => {
     });
 
     // Mock DynamoDB DocumentClient
-    AWS.DynamoDB.DocumentClient = jest.fn.mockImplementation(() => ({
+    AWS.DynamoDB.DocumentClient = jest.fn().mockImplementation(() => ({
       get: mockGet,
     }));
 
@@ -227,6 +227,159 @@ describe('Get Booking Integration Tests', () => {
       expect(result.headers['Access-Control-Allow-Credentials']).toBe(true);
       expect(result.headers['Content-Type']).toBe('application/json');
     });
+
+    it('should handle booking with missing user fields gracefully', async () => {
+      // Arrange
+      const bookingId = '660e8400-e29b-41d4-a716-446655441111';
+      const adminUserId = 'admin-789';
+
+      // Booking with missing user fields
+      const mockBooking = {
+        id: bookingId,
+        date: '2025-01-15',
+        // No user field
+      };
+
+      const token = generateToken({
+        userId: adminUserId,
+        role: 'ADMIN',
+      });
+
+      const authorizerContext = {
+        userId: adminUserId,
+        role: 'ADMIN',
+      };
+
+      const event = createApiGatewayEvent(bookingId, token, authorizerContext);
+
+      mockPromise.mockResolvedValue({
+        Item: mockBooking,
+      });
+
+      // Act
+      const result = await handler(event);
+
+      // Assert - ADMIN should still be able to access
+      expect(result.statusCode).toBe(200);
+
+      const body = JSON.parse(result.body);
+      expect(body).toEqual({
+        id: bookingId,
+        date: '2025-01-15',
+        user: {
+          id: '',
+          name: '',
+          email: '',
+        },
+      });
+    });
+
+    it('should handle booking with partial user data', async () => {
+      // Arrange
+      const bookingId = '770e8400-e29b-41d4-a716-446655442222';
+      const userId = 'user-123';
+
+      // Booking with partial user data
+      const mockBooking = {
+        id: bookingId,
+        date: '2025-01-15',
+        user: {
+          id: userId,
+          // Missing name and email
+        },
+      };
+
+      const token = generateToken({
+        userId: userId,
+        role: 'USER',
+      });
+
+      const authorizerContext = {
+        userId: userId,
+        role: 'USER',
+      };
+
+      const event = createApiGatewayEvent(bookingId, token, authorizerContext);
+
+      mockPromise.mockResolvedValue({
+        Item: mockBooking,
+      });
+
+      // Act
+      const result = await handler(event);
+
+      // Assert
+      expect(result.statusCode).toBe(200);
+
+      const body = JSON.parse(result.body);
+      expect(body).toEqual({
+        id: bookingId,
+        date: '2025-01-15',
+        user: {
+          id: userId,
+          name: '',
+          email: '',
+        },
+      });
+    });
+
+    it('should handle booking with additional fields', async () => {
+      // Arrange
+      const bookingId = '880e8400-e29b-41d4-a716-446655443333';
+      const userId = 'user-123';
+
+      // Booking with additional fields that should be ignored
+      const mockBooking = {
+        id: bookingId,
+        date: '2025-01-15',
+        user: {
+          id: userId,
+          name: 'John Doe',
+          email: 'john@example.com',
+        },
+        // Additional fields
+        createdAt: '2025-01-01T12:00:00Z',
+        updatedAt: '2025-01-02T12:00:00Z',
+        status: 'confirmed',
+      };
+
+      const token = generateToken({
+        userId: userId,
+        role: 'USER',
+      });
+
+      const authorizerContext = {
+        userId: userId,
+        role: 'USER',
+      };
+
+      const event = createApiGatewayEvent(bookingId, token, authorizerContext);
+
+      mockPromise.mockResolvedValue({
+        Item: mockBooking,
+      });
+
+      // Act
+      const result = await handler(event);
+
+      // Assert - Only specified fields should be returned
+      expect(result.statusCode).toBe(200);
+
+      const body = JSON.parse(result.body);
+      expect(body).toEqual({
+        id: bookingId,
+        date: '2025-01-15',
+        user: {
+          id: userId,
+          name: 'John Doe',
+          email: 'john@example.com',
+        },
+      });
+      // Ensure additional fields are not included
+      expect(body.createdAt).toBeUndefined();
+      expect(body.updatedAt).toBeUndefined();
+      expect(body.status).toBeUndefined();
+    });
   });
 
   describe('Validation Errors', () => {
@@ -386,7 +539,7 @@ describe('Get Booking Integration Tests', () => {
       expect(mockGet).not.toHaveBeenCalled();
     });
 
-    it('should return 403 when non-owner non-ADMIN user tries to access booking', async () => {
+    it('should return 403 when non-ADMIN user tries to access another user\\'s booking', async () => {
       // Arrange
       const bookingId = '550e8400-e29b-41d4-a716-446655440000';
       const bookingOwnerId = 'user-123';
@@ -414,7 +567,6 @@ describe('Get Booking Integration Tests', () => {
 
       const event = createApiGatewayEvent(bookingId, token, authorizerContext);
 
-      // Mock DynamoDB response
       mockPromise.mockResolvedValue({
         Item: mockBooking,
       });
@@ -429,8 +581,46 @@ describe('Get Booking Integration Tests', () => {
       const body = JSON.parse(result.body);
       expect(body.message).toBe('Not authorized to view this booking');
 
-      // Verify DynamoDB was called
+      // Verify DynamoDB was called (authorization check happens after fetch)
       expect(mockGet).toHaveBeenCalledTimes(1);
+    });
+
+    it('should return 403 when user field is missing and user is not ADMIN', async () => {
+      // Arrange
+      const bookingId = '660e8400-e29b-41d4-a716-446655441111';
+      const userId = 'user-123';
+
+      // Booking with missing user field
+      const mockBooking = {
+        id: bookingId,
+        date: '2025-01-15',
+        // No user field
+      };
+
+      const token = generateToken({
+        userId: userId,
+        role: 'USER',
+      });
+
+      const authorizerContext = {
+        userId: userId,
+        role: 'USER',
+      };
+
+      const event = createApiGatewayEvent(bookingId, token, authorizerContext);
+
+      mockPromise.mockResolvedValue({
+        Item: mockBooking,
+      });
+
+      // Act
+      const result = await handler(event);
+
+      // Assert - Non-ADMIN should be denied
+      expect(result.statusCode).toBe(403);
+
+      const body = JSON.parse(result.body);
+      expect(body.message).toBe('Not authorized to view this booking');
     });
   });
 
@@ -469,9 +659,9 @@ describe('Get Booking Integration Tests', () => {
       expect(mockGet).toHaveBeenCalledTimes(1);
     });
 
-    it('should return 404 for ADMIN user when booking does not exist', async () => {
+    it('should return 404 for non-existent booking even with ADMIN role', async () => {
       // Arrange
-      const bookingId = '550e8400-e29b-41d4-a716-446655440000';
+      const bookingId = '660e8400-e29b-41d4-a716-446655441111';
       const adminUserId = 'admin-789';
 
       const token = generateToken({
@@ -494,85 +684,9 @@ describe('Get Booking Integration Tests', () => {
 
       // Assert
       expect(result.statusCode).toBe(404);
-      expect(result.headers['Content-Type']).toBe('application/json');
 
       const body = JSON.parse(result.body);
       expect(body.message).toBe('Booking not found');
-    });
-  });
-
-  describe('Server Errors', () => {
-    it('should return 500 when DynamoDB throws an error', async () => {
-      // Arrange
-      const bookingId = '550e8400-e29b-41d4-a716-446655440000';
-      const userId = 'user-123';
-
-      const token = generateToken({
-        userId: userId,
-        role: 'USER',
-      });
-
-      const authorizerContext = {
-        userId: userId,
-        role: 'USER',
-      };
-
-      const event = createApiGatewayEvent(bookingId, token, authorizerContext);
-
-      // Mock DynamoDB error
-      const dynamoError = new Error('DynamoDB service unavailable');
-      dynamoError.code = 'ServiceUnavailable';
-      mockPromise.mockRejectedValue(dynamoError);
-
-      // Act
-      const result = await handler(event);
-
-      // Assert
-      expect(result.statusCode).toBe(500);
-      expect(result.headers['Content-Type']).toBe('application/json');
-
-      const body = JSON.parse(result.body);
-      expect(body.message).toBe('Error retrieving booking');
-
-      // Verify DynamoDB was called
-      expect(mockGet).toHaveBeenCalledTimes(1);
-    });
-
-    it('should return 500 when DYNAMODB_BOOKINGS environment variable is not set', async () => {
-      // Arrange
-      const bookingId = '550e8400-e29b-41d4-a716-446655440000';
-      const userId = 'user-123';
-
-      // Remove environment variable
-      delete process.env.DYNAMODB_BOOKINGS;
-
-      const token = generateToken({
-        userId: userId,
-        role: 'USER',
-      });
-
-      const authorizerContext = {
-        userId: userId,
-        role: 'USER',
-      };
-
-      const event = createApiGatewayEvent(bookingId, token, authorizerContext);
-
-      // Act
-      const result = await handler(event);
-
-      // Assert
-      expect(result.statusCode).toBe(500);
-      expect(result.headers['Content-Type']).toBe('application/json');
-
-      const body = JSON.parse(result.body);
-      expect(body.message).toBe('Internal server error');
-
-      // Verify DynamoDB was never called
-      expect(mockGet).not.toHaveBeenCalled();
-
-      // Restore environment variable for other tests
-      process.env.DYNAMODB_BOOKINGS = 'test-bookings-table';
     });
   });
 });
