@@ -253,9 +253,9 @@ User Story
 
 ---
 
-### Step 4: Create Terraform IAM role for get-booking Lambda 🔄
+### Step 4: Create Terraform IAM role for get-booking Lambda ✅
 
-**Status:** in_progress
+**Status:** completed
 **Description:** Create Terraform configuration for the get-booking Lambda IAM role with DynamoDB GetItem permissions on the bookings table, following the pattern from existing Lambda roles in terraform/infra/
 
 **Files:**
@@ -263,6 +263,10 @@ User Story
 
 **KB Queries:**
 - Terraform IAM policy for DynamoDB GetItem operation
+
+**Completed:** 2025-11-28T00:05:30.089558
+
+**Cost:** $0.074556 (5312 input tokens, 3908 output tokens)
 
 ---
 
@@ -350,6 +354,6 @@ User Story
 
 ## Total Cost
 
-**Total:** $0.165555
-**Input Tokens:** 12,235
-**Output Tokens:** 8,590
+**Total:** $0.240111
+**Input Tokens:** 17,547
+**Output Tokens:** 12,498
