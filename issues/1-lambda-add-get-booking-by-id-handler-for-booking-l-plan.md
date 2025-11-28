@@ -310,9 +310,9 @@ User Story
 
 ---
 
-### Step 8: Create unit tests for validation errors ⏳
+### Step 8: Create unit tests for validation errors 🔄
 
-**Status:** pending
+**Status:** in_progress
 **Description:** Create Jest unit tests for invalid booking ID format validation, testing that malformed UUIDs return 400 with appropriate error message
 
 **KB Queries:**
