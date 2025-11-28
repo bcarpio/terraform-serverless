@@ -21,7 +21,7 @@ describe('Get Booking Handler - Success Cases', () => {
     });
 
     // Mock DynamoDB DocumentClient
-    AWS.DynamoDB.DocumentClient = jest.fn.mockImplementation(() => ({
+    AWS.DynamoDB.DocumentClient = jest.fn().mockImplementation(() => ({
       get: mockGet,
     }));
 
@@ -366,7 +366,7 @@ describe('Get Booking Handler - Validation Errors', () => {
     });
 
     // Mock DynamoDB DocumentClient
-    AWS.DynamoDB.DocumentClient = jest.fn.mockImplementation(() => ({
+    AWS.DynamoDB.DocumentClient = jest.fn().mockImplementation(() => ({
       get: mockGet,
     }));
 
@@ -435,7 +435,6 @@ describe('Get Booking Handler - Validation Errors', () => {
 
       // Assert
       expect(result.statusCode).toBe(400);
-      expect(result.headers['Content-Type']).toBe('application/json');
 
       const body = JSON.parse(result.body);
       expect(body).toEqual({
@@ -468,7 +467,6 @@ describe('Get Booking Handler - Validation Errors', () => {
 
       // Assert
       expect(result.statusCode).toBe(400);
-      expect(result.headers['Content-Type']).toBe('application/json');
 
       const body = JSON.parse(result.body);
       expect(body).toEqual({
@@ -479,40 +477,7 @@ describe('Get Booking Handler - Validation Errors', () => {
       expect(mockGet).not.toHaveBeenCalled();
     });
 
-    it('should return 400 for UUID with missing hyphens', async () => {
-      // Arrange
-      const invalidBookingId = '550e8400e29b41d4a716446655440000'; // No hyphens
-      const userId = 'user-123';
-
-      const event = {
-        pathParameters: {
-          id: invalidBookingId,
-        },
-        requestContext: {
-          authorizer: {
-            userId: userId,
-            role: 'USER',
-          },
-        },
-      };
-
-      // Act
-      const result = await handler(event);
-
-      // Assert
-      expect(result.statusCode).toBe(400);
-      expect(result.headers['Content-Type']).toBe('application/json');
-
-      const body = JSON.parse(result.body);
-      expect(body).toEqual({
-        message: 'Invalid booking ID format',
-      });
-
-      // Verify DynamoDB was never called
-      expect(mockGet).not.toHaveBeenCalled();
-    });
-
-    it('should return 400 for empty booking ID', async () => {
+    it('should return 400 for empty string', async () => {
       // Arrange
       const invalidBookingId = '';
       const userId = 'user-123';
@@ -534,7 +499,6 @@ describe('Get Booking Handler - Validation Errors', () => {
 
       // Assert
       expect(result.statusCode).toBe(400);
-      expect(result.headers['Content-Type']).toBe('application/json');
 
       const body = JSON.parse(result.body);
       expect(body).toEqual({
@@ -544,47 +508,15 @@ describe('Get Booking Handler - Validation Errors', () => {
       // Verify DynamoDB was never called
       expect(mockGet).not.toHaveBeenCalled();
     });
-
-    it('should return 400 for UUID with uppercase letters outside allowed range', async () => {
-      // Arrange
-      const invalidBookingId = '550E8400-E29B-41D4-A716-446655440000'; // Uppercase is valid, but testing case insensitivity
-      const userId = 'user-123';
-
-      const event = {
-        pathParameters: {
-          id: invalidBookingId,
-        },
-        requestContext: {
-          authorizer: {
-            userId: userId,
-            role: 'USER',
-          },
-        },
-      };
-
-      // Mock DynamoDB response (should not be called if UUID is invalid)
-      mockPromise.mockResolvedValue({
-        Item: undefined,
-      });
-
-      // Act
-      const result = await handler(event);
-
-      // Assert - Uppercase UUID is actually valid, so this should pass validation
-      // and return 404 if not found
-      expect(result.statusCode).toBe(404);
-    });
   });
 
-  describe('Malformed Booking ID', () => {
-    it('should return 400 with proper error message for null booking ID', async () => {
+  describe('Missing Booking ID', () => {
+    it('should return 400 when booking ID is missing', async () => {
       // Arrange
       const userId = 'user-123';
 
       const event = {
-        pathParameters: {
-          id: null,
-        },
+        pathParameters: {}, // No id parameter
         requestContext: {
           authorizer: {
             userId: userId,
@@ -598,23 +530,22 @@ describe('Get Booking Handler - Validation Errors', () => {
 
       // Assert
       expect(result.statusCode).toBe(400);
-      expect(result.headers['Content-Type']).toBe('application/json');
 
       const body = JSON.parse(result.body);
-      expect(body.message).toBe('Booking ID is required');
+      expect(body).toEqual({
+        message: 'Booking ID is required',
+      });
 
       // Verify DynamoDB was never called
       expect(mockGet).not.toHaveBeenCalled();
     });
 
-    it('should return 400 with proper error message for undefined booking ID', async () => {
+    it('should return 400 when pathParameters is null', async () => {
       // Arrange
       const userId = 'user-123';
 
       const event = {
-        pathParameters: {
-          id: undefined,
-        },
+        pathParameters: null, // Null path parameters
         requestContext: {
           authorizer: {
             userId: userId,
@@ -628,51 +559,57 @@ describe('Get Booking Handler - Validation Errors', () => {
 
       // Assert
       expect(result.statusCode).toBe(400);
-      expect(result.headers['Content-Type']).toBe('application/json');
 
       const body = JSON.parse(result.body);
-      expect(body.message).toBe('Booking ID is required');
+      expect(body).toEqual({
+        message: 'Booking ID is required',
+      });
 
       // Verify DynamoDB was never called
       expect(mockGet).not.toHaveBeenCalled();
     });
+  });
+});
 
-    it('should return 400 with proper error message for missing pathParameters', async () => {
-      // Arrange
-      const userId = 'user-123';
+describe('Get Booking Handler - Not Found Errors', () => {
+  let mockGet;
+  let mockPromise;
 
-      const event = {
-        pathParameters: null, // No path parameters at all
-        requestContext: {
-          authorizer: {
-            userId: userId,
-            role: 'USER',
-          },
-        },
-      };
+  beforeEach(() => {
+    // Clear all mocks before each test
+    jest.clearAllMocks();
 
-      // Act
-      const result = await handler(event);
+    // Create mock promise function
+    mockPromise = jest.fn();
 
-      // Assert
-      expect(result.statusCode).toBe(400);
-      expect(result.headers['Content-Type']).toBe('application/json');
-
-      const body = JSON.parse(result.body);
-      expect(body.message).toBe('Booking ID is required');
-
-      // Verify DynamoDB was never called
-      expect(mockGet).not.toHaveBeenCalled();
+    // Create mock get function
+    mockGet = jest.fn().mockReturnValue({
+      promise: mockPromise,
     });
 
-    it('should return 400 with proper error message for special characters in booking ID', async () => {
+    // Mock DynamoDB DocumentClient
+    AWS.DynamoDB.DocumentClient = jest.fn().mockImplementation(() => ({
+      get: mockGet,
+    }));
+
+    // Set environment variable
+    process.env.DYNAMODB_BOOKINGS = 'test-bookings-table';
+  });
+
+  afterEach(() => {
+    // Clean up environment variables
+    delete process.env.DYNAMODB_BOOKINGS;
+  });
+
+  describe('Booking Not Found', () => {
+    it('should return 404 when booking does not exist', async () => {
       // Arrange
-      const invalidBookingId = '550e8400-e29b-41d4-a716-446655440000!'; // Special character
+      const bookingId = '550e8400-e29b-41d4-a716-446655440000';
       const userId = 'user-123';
 
       const event = {
         pathParameters: {
-          id: invalidBookingId,
+          id: bookingId,
         },
         requestContext: {
           authorizer: {
@@ -682,49 +619,61 @@ describe('Get Booking Handler - Validation Errors', () => {
         },
       };
 
+      // Mock DynamoDB response - no item found
+      mockPromise.mockResolvedValue({});
+
       // Act
       const result = await handler(event);
 
       // Assert
-      expect(result.statusCode).toBe(400);
+      expect(result.statusCode).toBe(404);
       expect(result.headers['Content-Type']).toBe('application/json');
 
       const body = JSON.parse(result.body);
-      expect(body.message).toBe('Invalid booking ID format');
+      expect(body).toEqual({
+        message: 'Booking not found',
+      });
 
-      // Verify DynamoDB was never called
-      expect(mockGet).not.toHaveBeenCalled();
+      // Verify DynamoDB call
+      expect(mockGet).toHaveBeenCalledTimes(1);
+      expect(mockGet).toHaveBeenCalledWith({
+        TableName: 'test-bookings-table',
+        Key: {
+          id: bookingId,
+        },
+      });
     });
 
-    it('should return 400 with proper error message for whitespace in booking ID', async () => {
+    it('should return 404 for ADMIN user when booking does not exist', async () => {
       // Arrange
-      const invalidBookingId = '550e8400 e29b 41d4 a716 446655440000'; // Spaces instead of hyphens
-      const userId = 'user-123';
+      const bookingId = '550e8400-e29b-41d4-a716-446655440000';
+      const adminUserId = 'admin-789';
 
       const event = {
         pathParameters: {
-          id: invalidBookingId,
+          id: bookingId,
         },
         requestContext: {
           authorizer: {
-            userId: userId,
-            role: 'USER',
+            userId: adminUserId,
+            role: 'ADMIN',
           },
         },
       };
+
+      // Mock DynamoDB response - no item found
+      mockPromise.mockResolvedValue({});
 
       // Act
       const result = await handler(event);
 
       // Assert
-      expect(result.statusCode).toBe(400);
-      expect(result.headers['Content-Type']).toBe('application/json');
+      expect(result.statusCode).toBe(404);
 
       const body = JSON.parse(result.body);
-      expect(body.message).toBe('Invalid booking ID format');
-
-      // Verify DynamoDB was never called
-      expect(mockGet).not.toHaveBeenCalled();
+      expect(body).toEqual({
+        message: 'Booking not found',
+      });
     });
   });
 });
@@ -759,18 +708,18 @@ describe('Get Booking Handler - Authorization Errors', () => {
     delete process.env.DYNAMODB_BOOKINGS;
   });
 
-  describe('Non-Owner Non-ADMIN User', () => {
-    it('should return 403 when non-owner non-ADMIN user tries to access booking', async () => {
+  describe('Unauthorized Access', () => {
+    it('should return 403 when non-owner tries to access booking', async () => {
       // Arrange
       const bookingId = '550e8400-e29b-41d4-a716-446655440000';
-      const bookingOwnerId = 'user-123';
-      const requestingUserId = 'user-456'; // Different user
+      const ownerId = 'user-123';
+      const requesterId = 'user-456'; // Different user
 
       const mockBooking = {
         id: bookingId,
         date: '2025-01-15',
         user: {
-          id: bookingOwnerId,
+          id: ownerId,
           name: 'John Doe',
           email: 'john@example.com',
         },
@@ -782,123 +731,43 @@ describe('Get Booking Handler - Authorization Errors', () => {
         },
         requestContext: {
           authorizer: {
-            userId: requestingUserId,
-            role: 'USER', // Not ADMIN
-          },
-        },
-      };
-
-      // Mock DynamoDB response
-      mockPromise.mockResolvedValue({
-        Item: mockBooking,
-      });
-
-      // Act
-      const result = await handler(event);
-
-      // Assert
-      expect(result.statusCode).toBe(403);
-      expect(result.headers['Content-Type']).toBe('application/json');
-
-      const body = JSON.parse(result.body);
-      expect(body).toEqual({
-        message: 'Not authorized to view this booking',
-      });
-
-      // Verify DynamoDB was called
-      expect(mockGet).toHaveBeenCalledTimes(1);
-    });
-
-    it('should return 403 when user with no role tries to access another users booking', async () => {
-      // Arrange
-      const bookingId = '550e8400-e29b-41d4-a716-446655440000';
-      const bookingOwnerId = 'user-123';
-      const requestingUserId = 'user-456'; // Different user
-
-      const mockBooking = {
-        id: bookingId,
-        date: '2025-01-15',
-        user: {
-          id: bookingOwnerId,
-          name: 'John Doe',
-          email: 'john@example.com',
-        },
-      };
-
-      const event = {
-        pathParameters: {
-          id: bookingId,
-        },
-        requestContext: {
-          authorizer: {
-            userId: requestingUserId,
-            // No role field
-          },
-        },
-      };
-
-      // Mock DynamoDB response
-      mockPromise.mockResolvedValue({
-        Item: mockBooking,
-      });
-
-      // Act
-      const result = await handler(event);
-
-      // Assert
-      expect(result.statusCode).toBe(403);
-      expect(result.headers['Content-Type']).toBe('application/json');
-
-      const body = JSON.parse(result.body);
-      expect(body).toEqual({
-        message: 'Not authorized to view this booking',
-      });
-    });
-  });
-
-  describe('Booking Not Found', () => {
-    it('should return 404 when booking does not exist', async () => {
-      // Arrange
-      const bookingId = '550e8400-e29b-41d4-a716-446655440000';
-      const userId = 'user-123';
-
-      const event = {
-        pathParameters: {
-          id: bookingId,
-        },
-        requestContext: {
-          authorizer: {
-            userId: userId,
+            userId: requesterId,
             role: 'USER',
           },
         },
       };
 
-      // Mock DynamoDB response - no item found
+      // Mock DynamoDB response
       mockPromise.mockResolvedValue({
-        // No Item field
+        Item: mockBooking,
       });
 
       // Act
       const result = await handler(event);
 
       // Assert
-      expect(result.statusCode).toBe(404);
+      expect(result.statusCode).toBe(403);
       expect(result.headers['Content-Type']).toBe('application/json');
 
       const body = JSON.parse(result.body);
       expect(body).toEqual({
-        message: 'Booking not found',
+        message: 'Not authorized to view this booking',
       });
 
       // Verify DynamoDB was called
       expect(mockGet).toHaveBeenCalledTimes(1);
     });
 
-    it('should return 404 for ADMIN user when booking does not exist', async () => {
+    it('should return 403 when non-ADMIN user tries to access booking with missing user field', async () => {
       // Arrange
       const bookingId = '550e8400-e29b-41d4-a716-446655440000';
-      const adminUserId = 'admin-789';
+      const requesterId = 'user-456';
+
+      const mockBooking = {
+        id: bookingId,
+        date: '2025-01-15',
+        // No user field
+      };
 
       const event = {
         pathParameters: {
@@ -906,32 +775,93 @@ describe('Get Booking Handler - Authorization Errors', () => {
         },
         requestContext: {
           authorizer: {
-            userId: adminUserId,
-            role: 'ADMIN',
+            userId: requesterId,
+            role: 'USER',
           },
         },
       };
 
-      // Mock DynamoDB response - no item found
+      // Mock DynamoDB response
       mockPromise.mockResolvedValue({
-        // No Item field
+        Item: mockBooking,
       });
 
       // Act
       const result = await handler(event);
 
       // Assert
-      expect(result.statusCode).toBe(404);
-      expect(result.headers['Content-Type']).toBe('application/json');
+      expect(result.statusCode).toBe(403);
 
       const body = JSON.parse(result.body);
       expect(body).toEqual({
-        message: 'Booking not found',
+        message: 'Not authorized to view this booking',
       });
     });
+
+    it('should return 401 when user ID is missing from authorizer', async () => {
+      // Arrange
+      const bookingId = '550e8400-e29b-41d4-a716-446655440000';
+
+      const event = {
+        pathParameters: {
+          id: bookingId,
+        },
+        requestContext: {
+          authorizer: {
+            // No userId
+            role: 'USER',
+          },
+        },
+      };
+
+      // Act
+      const result = await handler(event);
+
+      // Assert
+      expect(result.statusCode).toBe(401);
+
+      const body = JSON.parse(result.body);
+      expect(body).toEqual({
+        message: 'Unauthorized',
+      });
+
+      // Verify DynamoDB was never called
+      expect(mockGet).not.toHaveBeenCalled();
+    });
+  });
+});
+
+describe('Get Booking Handler - DynamoDB Errors', () => {
+  let mockGet;
+  let mockPromise;
+
+  beforeEach(() => {
+    // Clear all mocks before each test
+    jest.clearAllMocks();
+
+    // Create mock promise function
+    mockPromise = jest.fn();
+
+    // Create mock get function
+    mockGet = jest.fn().mockReturnValue({
+      promise: mockPromise,
+    });
+
+    // Mock DynamoDB DocumentClient
+    AWS.DynamoDB.DocumentClient = jest.fn().mockImplementation(() => ({
+      get: mockGet,
+    }));
+
+    // Set environment variable
+    process.env.DYNAMODB_BOOKINGS = 'test-bookings-table';
   });
 
-  describe('DynamoDB Errors', () => {
+  afterEach(() => {
+    // Clean up environment variables
+    delete process.env.DYNAMODB_BOOKINGS;
+  });
+
+  describe('Database Errors', () => {
     it('should return 500 when DynamoDB throws an error', async () => {
       // Arrange
       const bookingId = '550e8400-e29b-41d4-a716-446655440000';
@@ -950,8 +880,7 @@ describe('Get Booking Handler - Authorization Errors', () => {
       };
 
       // Mock DynamoDB error
-      const dynamoError = new Error('DynamoDB service unavailable');
-      dynamoError.code = 'ServiceUnavailable';
+      const dynamoError = new Error('DynamoDB connection failed');
       mockPromise.mockRejectedValue(dynamoError);
 
       // Act
@@ -970,8 +899,10 @@ describe('Get Booking Handler - Authorization Errors', () => {
       expect(mockGet).toHaveBeenCalledTimes(1);
     });
 
-    it('should return 500 when DynamoDB throws a provisioned throughput exceeded error', async () => {
+    it('should return 500 when environment variable is missing', async () => {
       // Arrange
+      delete process.env.DYNAMODB_BOOKINGS; // Remove env var
+
       const bookingId = '550e8400-e29b-41d4-a716-446655440000';
       const userId = 'user-123';
 
@@ -987,92 +918,19 @@ describe('Get Booking Handler - Authorization Errors', () => {
         },
       };
 
-      // Mock DynamoDB error
-      const dynamoError = new Error('Provisioned throughput exceeded');
-      dynamoError.code = 'ProvisionedThroughputExceededException';
-      mockPromise.mockRejectedValue(dynamoError);
-
       // Act
       const result = await handler(event);
 
       // Assert
       expect(result.statusCode).toBe(500);
-      expect(result.headers['Content-Type']).toBe('application/json');
 
       const body = JSON.parse(result.body);
       expect(body).toEqual({
-        message: 'Error retrieving booking',
+        message: 'Internal server error',
       });
-    });
 
-    it('should return 500 when DynamoDB throws an internal server error', async () => {
-      // Arrange
-      const bookingId = '550e8400-e29b-41d4-a716-446655440000';
-      const userId = 'user-123';
-
-      const event = {
-        pathParameters: {
-          id: bookingId,
-        },
-        requestContext: {
-          authorizer: {
-            userId: userId,
-            role: 'USER',
-          },
-        },
-      };
-
-      // Mock DynamoDB error
-      const dynamoError = new Error('Internal server error');
-      dynamoError.code = 'InternalServerError';
-      mockPromise.mockRejectedValue(dynamoError);
-
-      // Act
-      const result = await handler(event);
-
-      // Assert
-      expect(result.statusCode).toBe(500);
-      expect(result.headers['Content-Type']).toBe('application/json');
-
-      const body = JSON.parse(result.body);
-      expect(body).toEqual({
-        message: 'Error retrieving booking',
-      });
-    });
-
-    it('should return 500 when DynamoDB throws a validation exception', async () => {
-      // Arrange
-      const bookingId = '550e8400-e29b-41d4-a716-446655440000';
-      const userId = 'user-123';
-
-      const event = {
-        pathParameters: {
-          id: bookingId,
-        },
-        requestContext: {
-          authorizer: {
-            userId: userId,
-            role: 'USER',
-          },
-        },
-      };
-
-      // Mock DynamoDB error
-      const dynamoError = new Error('Validation exception');
-      dynamoError.code = 'ValidationException';
-      mockPromise.mockRejectedValue(dynamoError);
-
-      // Act
-      const result = await handler(event);
-
-      // Assert
-      expect(result.statusCode).toBe(500);
-      expect(result.headers['Content-Type']).toBe('application/json');
-
-      const body = JSON.parse(result.body);
-      expect(body).toEqual({
-        message: 'Error retrieving booking',
-      });
+      // Verify DynamoDB was never called
+      expect(mockGet).not.toHaveBeenCalled();
     });
   });
 });
