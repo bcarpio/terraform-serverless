@@ -242,10 +242,14 @@ User Story
 
 ---
 
-### Step 3: Update main API serverless.yml to include get-booking function 🔄
+### Step 3: Update main API serverless.yml to include get-booking function ✅
 
-**Status:** in_progress
+**Status:** completed
 **Description:** Add the get-booking function definition to api/serverless.yml following the existing pattern for create-booking and list-bookings, including the GET /bookings/{id} endpoint with authorizer
+
+**Completed:** 2025-11-28T00:04:12.418094
+
+**Cost:** $0.055908 (3691 input tokens, 2989 output tokens)
 
 ---
 
@@ -346,6 +350,6 @@ User Story
 
 ## Total Cost
 
-**Total:** $0.109647
-**Input Tokens:** 8,544
-**Output Tokens:** 5,601
+**Total:** $0.165555
+**Input Tokens:** 12,235
+**Output Tokens:** 8,590
