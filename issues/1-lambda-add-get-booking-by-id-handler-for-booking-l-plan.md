@@ -360,9 +360,9 @@ User Story
 
 ---
 
-### Step 12: Create integration tests for successful retrieval flows ⏳
+### Step 12: Create integration tests for successful retrieval flows 🔄
 
-**Status:** pending
+**Status:** in_progress
 **Description:** Create integration tests using supertest (or equivalent for Lambda) to test end-to-end successful booking retrieval by owner and by ADMIN user with real API Gateway event structure
 
 **Files:**
