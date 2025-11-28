@@ -224,9 +224,9 @@ User Story
 
 ---
 
-### Step 2: Create serverless.yml for get-booking function ⏳
+### Step 2: Create serverless.yml for get-booking function 🔄
 
-**Status:** pending
+**Status:** in_progress
 **Description:** Create serverless.yml configuration for the get-booking Lambda function with API Gateway HTTP GET endpoint, environment variables from SSM, and IAM role reference following the pattern from existing api service functions
 
 **Files:**
