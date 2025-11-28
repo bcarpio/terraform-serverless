@@ -324,9 +324,9 @@ User Story
 
 ---
 
-### Step 9: Create unit tests for booking not found scenario ⏳
+### Step 9: Create unit tests for booking not found scenario 🔄
 
-**Status:** pending
+**Status:** in_progress
 **Description:** Create Jest unit tests for 404 error handling when DynamoDB returns empty result for non-existent booking ID
 
 ---
