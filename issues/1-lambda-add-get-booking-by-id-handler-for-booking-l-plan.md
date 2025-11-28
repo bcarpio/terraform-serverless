@@ -270,9 +270,9 @@ User Story
 
 ---
 
-### Step 5: Create SSM parameter for get-booking IAM role ARN ⏳
+### Step 5: Create SSM parameter for get-booking IAM role ARN 🔄
 
-**Status:** pending
+**Status:** in_progress
 **Description:** Add Terraform SSM parameter resource to store the get-booking Lambda IAM role ARN for reference in serverless.yml, following the existing pattern for other Lambda role ARNs
 
 ---
