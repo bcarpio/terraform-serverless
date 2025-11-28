@@ -33,10 +33,10 @@ resource "aws_iam_policy" "get_booking_dynamodb" {
       {
         Effect = "Allow"
         Action = [
-          "dynamodb:GetItem"
+          "dynamodb:GetItem"  # Only read what's needed - single item lookup
         ]
         Resource = [
-          aws_dynamodb_table.bookings.arn
+          aws_dynamodb_table.bookings.arn  # Specific table, not all tables
         ]
       }
     ]
@@ -45,7 +45,7 @@ resource "aws_iam_policy" "get_booking_dynamodb" {
   tags = {
     Name        = "${var.environment}-get-booking-dynamodb-policy"
     Environment = var.environment
-    ManagedBy   = "TerXanform"
+    ManagedBy   = "Terraform"
     Service     = "get-booking"
   }
 }
