@@ -25,6 +25,10 @@ functions:
             resultTtlInSeconds: 300
             identitySource: method.request.header.Authorization
             type: token
+          request:
+            parameters:
+              paths:
+                id: true
           cors:
             origin: '*'
             headers:
