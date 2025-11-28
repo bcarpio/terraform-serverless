@@ -346,9 +346,9 @@ User Story
 
 ---
 
-### Step 11: Create unit tests for DynamoDB error handling ⏳
+### Step 11: Create unit tests for DynamoDB error handling 🔄
 
-**Status:** pending
+**Status:** in_progress
 **Description:** Create Jest unit tests for 500 internal server error when DynamoDB operations fail, verifying error logging and response format
 
 **KB Queries:**
